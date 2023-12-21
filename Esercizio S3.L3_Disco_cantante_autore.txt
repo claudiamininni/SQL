@@ -1,0 +1,83 @@
+-- Creazione della tabella DISCO
+CREATE TABLE DISCO (
+    NroSerie INT PRIMARY KEY,
+    TitoloAlbum VARCHAR(255),
+    Anno INT,
+    Prezzo DECIMAL(10, 2)
+);
+
+-- Creazione della tabella ESECUZIONE
+CREATE TABLE ESECUZIONE (
+    CodiceReg INT PRIMARY KEY,
+    TitoloCanz VARCHAR(255),
+    Anno INT
+);
+
+-- Creazione della tabella CANTANTE
+CREATE TABLE CANTANTE (
+    NomeCantante VARCHAR(255) PRIMARY KEY,
+    CodiceReg INT,
+    FOREIGN KEY (CodiceReg) REFERENCES ESECUZIONE(CodiceReg)
+);
+
+-- Creazione della tabella AUTORE
+CREATE TABLE AUTORE (
+    Nome VARCHAR(255),
+    TitoloCanzone VARCHAR(255),
+    PRIMARY KEY (Nome, TitoloCanzone)
+);
+-- Creazione della tabella CONTIENE
+CREATE TABLE CONTIENE (
+    NroSerieDisco INT,
+    CodiceReg INT,
+    NroProg INT,
+    PRIMARY KEY (NroSerieDisco),
+    FOREIGN KEY (CodiceReg) REFERENCES ESECUZIONE(CodiceReg),
+    FOREIGN KEY (CodiceReg) REFERENCES CANTANTE(CodiceReg)
+);
+
+-- Inserimento di valori nella tabella DISCO
+INSERT INTO DISCO (NroSerie, TitoloAlbum, Anno, Prezzo)
+VALUES
+    (1, 'Greatest Hits', null, 19.99),
+    (2, 'Rock Classics', 1985, 15.50),
+    (3, 'Pop Anthems', null, 29.99);
+
+-- Inserimento di valori nella tabella ESECUZIONE
+INSERT INTO ESECUZIONE (CodiceReg, TitoloCanz, Anno)
+VALUES
+    (1, 'Song One', 2001),
+    (2, 'Rock Anthem', 1985),
+    (3, 'Pop Hit', 2022);
+
+-- Inserimento di valori nella tabella CANTANTE
+INSERT INTO CANTANTE (NomeCantante, CodiceReg)
+VALUES
+    ('John Singer', 1),
+    ('Dana Artist', 2),
+    ('David Vocalist', 3);
+
+-- Inserimento di valori nella tabella AUTORE
+INSERT INTO AUTORE (Nome, TitoloCanzone)
+VALUES
+    ('John Singer', 'Song One'),
+    ('Dana Artist', 'Rock Anthem'),
+    ('Miro', 'Pop Hit');
+
+-- Inserimento di valori nella tabella CONTIENE
+INSERT INTO CONTIENE (NroSerieDisco, CodiceReg, NroProg)
+VALUES
+    (1, 1, 1),
+    (2, 2, 2),
+    (3, 3, 3);
+
+
+-- Trova i valori comuni tra NomeCantante e Nome che iniziano per 'D'
+SELECT DISTINCT C.NomeCantante
+FROM CANTANTE C
+JOIN AUTORE A ON C.NomeCantante = A.Nome
+WHERE C.NomeCantante LIKE 'D%';
+
+SELECT TitoloAlbum
+FROM DISCO
+WHERE Anno IS NULL;
