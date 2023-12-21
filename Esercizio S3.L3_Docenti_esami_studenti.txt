@@ -1,0 +1,89 @@
+
+-- Table: STUDENTE
+CREATE TABLE STUDENTE (
+    MatricolaStudente INT PRIMARY KEY,
+    Nome VARCHAR(255),
+    Citta VARCHAR(255)
+);
+
+-- Table: DOCENTE
+CREATE TABLE DOCENTE (
+    MatricolaDocente INT PRIMARY KEY,
+    Nome VARCHAR(255)
+);
+
+-- Table: CORSO
+CREATE TABLE CORSO (
+    Codice INT PRIMARY KEY,
+    Nome VARCHAR(255),
+    MatricolaDocente INT,
+    FOREIGN KEY (MatricolaDocente) REFERENCES DOCENTE(MatricolaDocente)
+);
+
+
+-- Table: ESAME
+CREATE TABLE ESAME (
+    Codice INT PRIMARY KEY,
+    CodiceCorso INT,
+    MatricolaStudente INT,
+    Data DATE,
+    Voto INT,
+    SettoreScientifico VARCHAR(255),
+    FOREIGN KEY (MatricolaStudente) REFERENCES STUDENTE(MatricolaStudente),
+    FOREIGN KEY (CodiceCorso) REFERENCES CORSO(Codice)
+);
+INSERT INTO STUDENTE (MatricolaStudente, Nome, Citta)
+VALUES
+    ('1002940','Laura','Noicattaro'),
+    ('1022940','Marco','Monopoli'),
+    ('1112940','Sara','Gioia');
+INSERT INTO DOCENTE (MatricolaDocente, Nome)
+VALUES
+    ('2940','De Bellis'),
+    ('1394','Miccoli'),
+    ('1294','Addesse');
+INSERT INTO CORSO ( Codice, Nome, MatricolaDocente)
+VALUES
+    ('2222','Microbiologia','2940'),
+    ('8888','Storia','1294'),
+    ('5555','Inglese','1394');
+
+INSERT INTO ESAME (Codice, CodiceCorso, MatricolaStudente, Data, Voto, SettoreScientifico)
+VALUES
+    (1, '2222', '1002940', '2023-01-15', '30', 'Biologia'),
+    (2, '8888', '1022940', '2023-02-20', '28', 'Storia'),
+    (3, '5555', '1002940', '2023-03-10', '25', 'Inglese'),
+    (4, '2222', '1112940', '2023-04-05', '27', 'Biologia'),
+    (5, '5555', '1002940', '2023-05-12', '18', 'Inglese');
+
+-- Per ogni studente, visualizzare gli esami sostenuti con voto maggiore di 28 assieme alla matricola dello studente e al nome del docente che ha tenuto il corso.
+SELECT -- Seleziono le colonne matricola (primarykey studenete), nome, codice esame, nome docente
+    S.MatricolaStudente, S.Nome, E.Codice, E.Voto, D.Nome
+FROM
+    ESAME E
+JOIN
+    STUDENTE S ON E.MatricolaStudente = S.MatricolaStudente
+JOIN
+    CORSO C ON E.CodiceCorso = C.Codice
+JOIN
+    DOCENTE D ON C.MatricolaDocente = D.MatricolaDocente
+WHERE
+    E.Voto > 28;
+
+-- Nome del docente riferito al settore disciplinare
+SELECT DISTINCT -- importante aggiungere distinct altrimenti lo ripete per tutti gli esami
+    d.Nome AS NomeDocente,
+    e.SettoreScientifico
+FROM
+    DOCENTE d
+JOIN
+    CORSO c ON d.MatricolaDocente = c.MatricolaDocente
+JOIN
+    ESAME e ON c.Codice = e.CodiceCorso;
+
+
+
+
+
+
+
