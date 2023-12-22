@@ -1,0 +1,221 @@
+
+-- Table: STUDENTE
+CREATE TABLE STUDENTE (
+    MatricolaStudente INT PRIMARY KEY,
+    Nome VARCHAR(255),
+    Citta VARCHAR(255)
+);
+
+-- Table: DOCENTE
+CREATE TABLE DOCENTE (
+    MatricolaDocente INT PRIMARY KEY,
+    Nome VARCHAR(255)
+);
+
+-- Table: CORSO
+CREATE TABLE CORSO (
+    Codice INT PRIMARY KEY,
+    Nome VARCHAR(255),
+    MatricolaDocente INT,
+    FOREIGN KEY (MatricolaDocente) REFERENCES DOCENTE(MatricolaDocente)
+);
+
+
+-- Table: ESAME
+CREATE TABLE ESAME (
+    Codice INT PRIMARY KEY,
+    CodiceCorso INT,
+    MatricolaStudente INT,
+    Data DATE,
+    Voto INT,
+    SettoreScientifico VARCHAR(255),
+    FOREIGN KEY (MatricolaStudente) REFERENCES STUDENTE(MatricolaStudente),
+    FOREIGN KEY (CodiceCorso) REFERENCES CORSO(Codice)
+);
+INSERT INTO STUDENTE (MatricolaStudente, Nome, Citta)
+VALUES
+    ('1002940','Laura','Noicattaro'),
+    ('1022940','Marco','Monopoli'),
+    ('1112940','Sara','Gioia');
+INSERT INTO DOCENTE (MatricolaDocente, Nome)
+VALUES
+    ('2940','De Bellis'),
+    ('1394','Miccoli'),
+    ('1294','Addesse');
+INSERT INTO CORSO ( Codice, Nome, MatricolaDocente)
+VALUES
+    ('2222','Microbiologia','2940'),
+    ('8888','Storia','1294'),
+    ('5555','Inglese','1394');
+
+INSERT INTO ESAME (Codice, CodiceCorso, MatricolaStudente, Data, Voto, SettoreScientifico)
+VALUES
+    (1, '2222', '1002940', '2023-01-15', '30', 'Biologia'),
+    (2, '8888', '1022940', '2023-02-20', '28', 'Storia'),
+    (3, '5555', '1002940', '2023-03-10', '25', 'Inglese'),
+    (4, '2222', '1112940', '2023-04-05', '27', 'Biologia'),
+    (5, '5555', '1002940', '2023-05-12', '18', 'Inglese');
+
+-- Per ogni studente, visualizzare gli esami sostenuti con voto maggiore di 28 assieme alla matricola dello studente e al nome del docente che ha tenuto il corso.
+SELECT -- Seleziono le colonne matricola (primarykey studenete), nome, codice esame, nome docente
+    S.MatricolaStudente, S.Nome, E.Codice, E.Voto, D.Nome
+FROM
+    ESAME E
+JOIN
+    STUDENTE S ON E.MatricolaStudente = S.MatricolaStudente
+JOIN
+    CORSO C ON E.CodiceCorso = C.Codice
+JOIN
+    DOCENTE D ON C.MatricolaDocente = D.MatricolaDocente
+WHERE
+    E.Voto > 28;
+
+-- Nome del docente riferito al settore disciplinare
+SELECT DISTINCT -- importante aggiungere distinct altrimenti lo ripete per tutti gli esami
+    d.Nome AS NomeDocente,
+    e.SettoreScientifico
+FROM
+    DOCENTE d
+JOIN
+    CORSO c ON d.MatricolaDocente = c.MatricolaDocente
+JOIN
+    ESAME e ON c.Codice = e.CodiceCorso;
+
+
+## secondo esercizio
+
+-- Aggiungo nuovi valori nella tabella DOCENTE
+INSERT INTO DOCENTE (MatricolaDocente, Nome)
+VALUES
+    ('3982', 'Giulia Basile'),
+    ('7615', 'Federico InsegnanteAmico'),
+    ('2319', 'Elisa Dolente'),
+    ('4726', 'Alessandro Mipare'),
+    ('5893', 'Martina Lapina'),
+    ('1245', 'Simone Tursiope'),
+    ('8563', 'Francesca Istrice'),
+    ('9321', 'Giovanni Silente'),
+    ('6754', 'Anna Basta'),
+    ('3489', 'Davide Educato');
+
+-- Aggiungo nuovi valori nella tabella CORSO
+INSERT INTO CORSO (Codice, Nome, MatricolaDocente)
+VALUES
+    ('9876', 'Chimica Avanzata', '3982'),
+    ('6543', 'Storia dell''Arte', '7615'),
+    ('3210', 'Informatica Applicata', '2319'),
+    ('4567', 'Letteratura Italiana', '4726'),
+    ('7890', 'Matematica Discreta', '5893'),
+    ('2345', 'Scienze Politiche', '1245'),
+    ('8765', 'Fisica Sperimentale', '8563'),
+    ('5432', 'Lingua Straniera', '9321'),
+    ('1098', 'Economia Globale', '6754'),
+    ('8761', 'Psicologia Applicata', '3489');
+
+
+-- Aggiungo nuovi valori nella tabella ESAME
+INSERT INTO ESAME (Codice, CodiceCorso, MatricolaStudente, Data, Voto, SettoreScientifico)
+VALUES
+    ('101', '9876', '1002940', '2023-06-15', '29', 'Chimica'),
+    ('102', '6543', '1022940', '2023-06-20', '27', 'Arte'),
+    ('103', '8761', '1002940', '2023-08-25', '29', 'Psicologia'),
+    ('104', '5432', '1002940', '2023-08-10', '30', 'Lingua'),
+    ('105', '1098', '1002940', '2023-08-18', '30', 'Economia'),
+    ('106', '4567', '1002940', '2023-07-05', '28', 'Letteratura'),
+    ('107', '3210', '1112940', '2023-06-25', '30', 'Informatica'),
+    ('108', '7890', '1112940', '2023-07-12', '30', 'Matematica'),
+    ('109', '2345', '1002940', '2023-07-20', '26', 'Scienze Politiche'),
+    ('110', '8765', '1112940', '2023-08-02', '30', 'Fisica'),
+    ('111', '5432', '1112940', '2023-08-10', '25', 'Lingua'),
+    ('112', '1098', '1112940', '2023-08-18', '30', 'Economia'),
+    ('113', '8761', '1002940', '2023-08-25', '29', 'Psicologia');
+    
+
+SELECT
+    s.MatricolaStudente,
+    s.Nome AS NomeStudente,
+    c.Nome AS NomeCorso,
+    MAX(e.Voto) AS VotoMassimo,
+    MIN(e.Voto) AS VotoMinimo,
+    AVG(e.Voto) AS VotoMedio
+FROM
+    STUDENTE s
+JOIN
+    ESAME e ON s.MatricolaStudente = e.MatricolaStudente
+JOIN
+    CORSO c ON e.CodiceCorso = c.Codice
+GROUP BY -- viene utilizzata per raggruppare insiemi di righe in base ai valori di una o più colonne
+        -- in questo caso per avere il raggruppamento per studente e non tutti sparsi
+    s.MatricolaStudente, s.Nome, c.Nome;
+
+-- quanti esami ha sostenuto ciascun studente?
+SELECT
+    s.MatricolaStudente,
+    s.Nome AS NomeStudente,
+    COUNT(*) AS NumeroEsami
+FROM
+    STUDENTE s
+JOIN
+    ESAME e ON s.MatricolaStudente = e.MatricolaStudente
+GROUP BY
+    s.MatricolaStudente, s.Nome;
+
+-- Quali sono i settoriscientifici abbinati agli esami '5432', '1098', '8761'?
+SELECT DISTINCT
+    CodiceCorso,
+    SettoreScientifico
+FROM
+    ESAME
+WHERE
+    CodiceCorso IN ('5432', '1098', '8761');
+
+
+-- verifico quanti esami ha laura
+SELECT
+    MatricolaStudente, 
+    COUNT(*) AS NumeroEsami
+FROM
+    ESAME
+WHERE
+    MatricolaStudente = '1002940';
+
+
+SELECT
+    s.MatricolaStudente,
+    s.Nome AS NomeStudente,
+    MAX(e.Voto) AS VotoMassimo,
+    MIN(e.Voto) AS VotoMinimo,
+    AVG(e.Voto) AS VotoMedio
+FROM
+    STUDENTE s
+JOIN
+    ESAME e ON s.MatricolaStudente = e.MatricolaStudente
+GROUP BY
+    s.MatricolaStudente, s.Nome
+HAVING
+    AVG(e.Voto) > 18 AND COUNT(DISTINCT e.Data) >=10
+ORDER BY
+    VotoMedio DESC;
+
+/*
+SELECT
+    s.MatricolaStudente,
+    s.Nome AS NomeStudente,
+    MAX(e.Voto) AS VotoMassimo,
+    MIN(e.Voto) AS VotoMinimo,
+    AVG(e.Voto) AS VotoMedio
+FROM
+    STUDENTE s
+JOIN
+    ESAME e ON s.MatricolaStudente = e.MatricolaStudente
+GROUP BY
+    s.MatricolaStudente, s.Nome
+HAVING --  filtra gli studenti con una media voti maggiore di 25
+    AVG(e.Voto) > 25 AND COUNT(DISTINCT e.Data) >= 10
+ORDER BY-- ordina in base alla colonna valor medio
+    VotoMedio DESC; -- in ordine decrescente
+*/
+
+
+
+

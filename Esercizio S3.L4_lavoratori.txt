@@ -1,0 +1,129 @@
+#Dipartimento(id_dipartimento, nome_dip, id_manager, id_location)
+-- Tabella: Dipartimento
+CREATE TABLE Dipartimento (
+    id_dipartimento INT PRIMARY KEY,
+    nome_dip VARCHAR(255),
+    id_manager INT,
+    id_location INT,
+    INDEX (id_manager)  -- Aggiungi un indice sulla colonna referenziata
+);
+# Dipendente(id, nome, cognome, email, numerotelefono, data_assunzione, id_lavoro, salario, id_manager, id_dipartimento)
+-- Tabella: Dipendente
+CREATE TABLE Dipendente (
+    id INT PRIMARY KEY,
+    nome VARCHAR(255),
+    cognome VARCHAR(255),
+    email VARCHAR(255),
+    numerotelefono VARCHAR(20),
+    data_assunzione DATE,
+    id_lavoro INT,
+    salario DECIMAL(10, 2),
+    id_manager INT,
+    id_dipartimento INT,
+    FOREIGN KEY (id_manager) REFERENCES Dipartimento(id_manager),
+    FOREIGN KEY (id_dipartimento) REFERENCES Dipartimento(id_dipartimento)
+);
+
+-- Inserimento di dati di esempio nella tabella Dipartimento
+INSERT INTO Dipartimento (id_dipartimento, nome_dip, id_manager, id_location) VALUES
+    (1, 'Sviluppo Software', 1, 1),
+    (2, 'Risorse Umane', 2, 2),
+    (3, 'Marketing', 3, 3),
+    (4, 'Amministrazione', 4, 1),
+    (5, 'Vendite', 5, 2),
+    (6, 'Grafica e Design', 6, 3),
+    (7, 'Sistemi IT', 7, 1),
+    (8, 'Progetti', 8, 2),
+    (9, 'Finanza', 9, 3),
+    (10, 'Assistenza Clienti', 10, 1);
+-- Inserimento di dati di esempio nella tabella Dipendente
+INSERT INTO Dipendente (id, nome, cognome, email, numerotelefono, data_assunzione, id_lavoro, salario, id_manager, id_dipartimento) VALUES
+    (1, 'Marco', 'Rossi', 'marco.rossi@email.com', '1234567890', '2022-01-15', 1, 60000.00, 4, 1),
+    (2, 'Giulia', 'Verdi', 'giulia.verdi@email.com', '9876543210', '2021-05-20', 3, 75000.00, 4, 2),
+    (3, 'Luca', 'Bianchi', 'luca.bianchi@email.com', '4567890123', '2022-03-10', 2, 70000.00, 1, 3),
+    (4, 'Anna', 'Neri', 'anna.neri@email.com', '7890123456', '2021-11-02', 6, 55000.00, 2, 1),
+    (5, 'Francesca', 'Giallo', 'francesca.giallo@email.com', '3456789012', '2022-06-28', 5, 62000.00, 2, 4),
+    (6, 'Simone', 'Rosa', 'simone.rosa@email.com', '2345678901', '2021-06-15', 7, 68000.00, 4, 4),
+    (7, 'Laura', 'Azzurro', 'laura.azzurro@email.com', '5678901234', '2022-04-05', 4, 72000.00, 3, 1),
+    (8, 'Gabriele', 'Arancio', 'gabriele.arancio@email.com', '8901234567', '2021-07-12', 8, 58000.00, 4, 2),
+    (9, 'Martina', 'Viola', 'martina.viola@email.com', '0123456789', '2022-06-18', 9, 66000.00, 4, 3),
+    (10, 'Davide', 'Marrone', 'davide.marrone@email.com', '6789012345', '2010-12-30', 10, 60000.00, 5, 1);
+
+
+ 
+-- Visualizzare la data di assunzione dei manager e i loro id appartenenti al dipartimento ’Amministrazione’ nel formato Nome mese, giorno, anno 
+SELECT 
+    DATE_FORMAT(D.data_assunzione, '%M %d, %Y') AS data_assunzione_manager,
+    D.id AS id_dipendente,
+    D.nome AS nome_dipendente,
+    D.cognome AS cognome_dipendente
+FROM Dipendente AS D
+WHERE D.id_dipartimento = (SELECT id_dipartimento FROM Dipartimento WHERE nome_dip = 'Amministrazione');
+
+
+-- Visualizzare il nome e il cognome dei dipendenti assunti nel mese di Giugno
+SELECT 
+    id AS id_dipendente,
+    nome AS nome_dipendente,
+    cognome AS cognome_dipendente,
+    data_assunzione
+FROM Dipendente
+WHERE 
+    MONTH(data_assunzione) = 6;
+
+-- Visualizzare gli anni in cui più di 10 dipendenti sono stati assunti  
+SELECT 
+    YEAR(data_assunzione) AS anno_assunzione,
+    COUNT(*) AS numero_dipendenti_assunti
+FROM Dipendente
+GROUP BY YEAR(data_assunzione)
+HAVING numero_dipendenti_assunti > 4;
+
+
+
+
+-- Visualizzare il nome del dipartimento, il nome del manager, il salario del manager di tutti i manager la cui esperienza è maggiore di 5 anni
+SELECT 
+    DP.nome_dip AS nome_dipartimento,
+    D.nome AS nome_manager,
+    D.salario AS salario_manager
+FROM 
+    Dipendente AS D
+JOIN 
+    Dipartimento AS DP ON D.id_manager = DP.id_manager
+WHERE 
+    DATEDIFF(NOW(), D.data_assunzione) >= 5;
+# non capisco perchè il risultato è sbagliato dato che solo davide ha 5 anni di esperiennza.
+SELECT 
+    DP.nome_dip AS nome_dipartimento,
+    D.nome AS nome_manager,
+    D.salario AS salario_manager
+FROM 
+    Dipendente AS D
+JOIN 
+    Dipartimento AS DP ON D.id_manager = DP.id_manager
+WHERE 
+    D.data_assunzione <= DATE_SUB(NOW(), INTERVAL 5 YEAR);
+
+
+-- DOMANDA BONUS 
+-- Visualizzare i dipendenti assunti per ciascun anno
+SELECT 
+    anno_assunzione,
+    MIN(numero_dipendenti_assunti) AS numero_dipendenti_assunti
+FROM (
+    SELECT 
+        YEAR(data_assunzione) AS anno_assunzione,
+        COUNT(*) AS numero_dipendenti_assunti
+    FROM 
+        Dipendente
+    GROUP BY 
+        anno_assunzione
+) AS sottotabella
+GROUP BY
+    anno_assunzione
+HAVING 
+    numero_dipendenti_assunti = (numero_dipendenti_assunti);
+
+
+
